@@ -19,7 +19,7 @@ export default function Cancel() {
                <div className="cancel_heading">Cancel</div>
                <div className="cancel_form">
                 <div className="enteremail"><span id="email">email</span><span id="email_field"><input type="text" placeholder="Enter the email id used while booking"/></span></div>
-                <div className="secretkey"><span id="cancelsecret">Secret key</span><span id="cancelsecret_field"><input type="text" placeholder="Enter secret key used while booking"/></span></div>
+                <div className="secretkey"><span id="secret_key">Secret key</span><span id="cancelsecret_field"><input type="text" placeholder="Enter secret key used while booking"/></span></div>
                 <div className="cancelbtn"><button id="cancel_btns">Cancel</button></div>
                </div>
             </div>

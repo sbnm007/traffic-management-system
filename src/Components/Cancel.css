@@ -1,37 +1,59 @@
 .cancel_main {
-    display: flex;
-    flex-direction: row;
-  }
-  
-  .cancel_settings {
-    font-size: 24px;
-    font-weight: bold;
-    width:770px;
-  }
-  
-  .cancel_map {
-    width: 900px;
-  }
-  
-  .cancel_heading{
-    margin-left:300px
-  }
-  .map_container {
-    width: 900px;
-    height: 760px; /* ⬅️ This sets the map height */
-  }
-  #cancelsecret{
-    font-size: 16px;
-  }
-  
-  .cancel_form{
-    margin-top:70px;
-    margin-left:150px;
-  }
-  #cancelsecret_field{
-    margin-left:10px;
-  }
-  #email_field{
-    margin-right: 00px;
-  }
-  
+  display: flex;
+  flex-direction: row;
+}
+
+.cancel_settings {
+  font-size: 24px;
+  font-weight: bold;
+  width: 770px;
+}
+
+.cancel_map {
+  width: 900px;
+}
+
+.cancel_heading {
+  margin-left: 300px;
+}
+
+.map_container {
+  width: 900px;
+  height: 760px; /* ⬅️ This sets the map height */
+}
+
+#cancelsecret {
+  font-size: 16px;
+}
+
+.cancel_form {
+  margin-top: 70px;
+  margin-left: 150px;
+}
+
+#cancelsecret_field {
+  margin-left: 50px;
+}
+
+#email_field {
+  margin-right: 10px; /* Reduced gap from 300px to 10px */
+}
+
+.enteremail {
+  display: flex;
+  flex-direction: row;
+}
+#email{
+  font-size: 18px;
+}
+#secret_key{
+  font-size: 18px;
+}
+#cancel_btns{
+  background-color: blueviolet;
+  color:white;
+  border:none;
+  font-size: 16px;
+  margin-left: 150px;
+  margin-top: 20px;
+}
