@@ -1,0 +1,113 @@
+.booking_main {
+    display: flex;
+    flex-direction: row;
+  }
+  
+  .booking_settings {
+    font-size: 24px;
+    font-weight: bold;
+    width:770px;
+  }
+  
+  .booking_map {
+    width: 900px;
+  }
+  
+  .booking_heading{
+    margin-left:300px
+  }
+  .map_container {
+    width: 900px;
+    height: 760px; /* ⬅️ This sets the map height */
+  }
+  
+  .booking_form{
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    padding-left: 230px;
+    padding-top: 80px;
+  }
+  #name{
+    font-size: 18px;
+  }
+  #name_field{
+    font-size: 18px;
+   margin-left:90px;
+  }
+  #email{
+    font-size: 18px;
+  }
+  #email_field{
+    font-size: 18px;
+    margin-left:93px;
+  }
+  #start{
+    font-size: 18px;
+  }
+  #start_field{
+    font-size: 18px;
+   margin-left:20px;
+  }
+  #end{
+    font-size: 18px;
+  }
+  #end_field{
+    font-size: 18px;
+    margin-left:27px;
+   }
+   #driving{
+    font-size: 18px;
+  }
+  #driving_field{
+    font-size: 18px;
+    margin-left:7px;
+   }
+   #secret{
+    font-size: 18px;
+  }
+  #secret_field{
+    font-size: 18px;
+    margin-left:35px;
+   }
+   .book_btn{
+    margin-top: 40px;
+    margin-left: 100px;
+   }
+   #book_btns{
+    width:140px;
+    height:35px;
+    border-radius: 50px;
+    font-size: 16px;
+    background-color: purple;
+    color: white;
+   }
+
+   .email{
+    margin-top: 20px;
+   }
+   .startlocation{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    margin-top: 20px;
+   }
+   .endlocation{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    margin-top: 20px;
+   }
+   .drivinglicense{
+    margin-top: 20px;
+   }
+   .secretcode{
+    margin-top: 20px;
+   }
+   #secretbtn{
+    background-color: rgb(7, 119, 247);
+    color:white;
+    border:none;
+    height:20px;
+    border-radius:10px;
+   }
