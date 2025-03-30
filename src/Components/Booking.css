@@ -111,3 +111,24 @@
     height:20px;
     border-radius:10px;
    }
+
+   @media (max-width: 768px) {
+    .booking_main {
+      flex-direction: column;
+    }
+    
+    .booking_settings,
+    .booking_map {
+      width: 100%;
+    }
+    
+    .booking_map {
+      margin-top: 20px; 
+    }
+    
+    .map_container {
+      width: 100%;
+      height: 400px;  
+    }
+  }
+  

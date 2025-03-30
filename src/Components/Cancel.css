@@ -57,3 +57,23 @@
   margin-left: 150px;
   margin-top: 20px;
 }
+
+@media (max-width: 768px) {
+  .cancel_main {
+    flex-direction: column;
+  }
+  
+  .cancel_settings,
+  .cancel_map {
+    width: 100%;
+  }
+  
+  .cancel_map {
+    margin-top: 20px;
+  }
+  
+  .map_container {
+    width: 100%;
+    height: 400px;
+  }
+}
