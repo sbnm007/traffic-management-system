@@ -1,79 +1,130 @@
 .cancel_main {
   display: flex;
   flex-direction: row;
+  height: calc(100vh - 60px); /* 减去导航栏高度 */
+  overflow: hidden;
 }
 
 .cancel_settings {
   font-size: 24px;
   font-weight: bold;
-  width: 770px;
+  width: 35%;
+  min-width: 400px;
+  padding: 20px;
+  overflow-y: auto;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
 }
 
 .cancel_map {
-  width: 900px;
+  width: 65%;
+  height: 100%;
 }
 
 .cancel_heading {
-  margin-left: 300px;
+  text-align: center;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #6200ea;
+  color: #6200ea;
 }
 
 .map_container {
-  width: 900px;
-  height: 760px; /* ⬅️ This sets the map height */
-}
-
-#cancelsecret {
-  font-size: 16px;
+  width: 100%;
+  height: 100%;
 }
 
 .cancel_form {
-  margin-top: 70px;
-  margin-left: 150px;
+  display: flex;
+  flex-direction: column;
+  padding: 10px 20px;
 }
 
-#cancelsecret_field {
-  margin-left: 50px;
-}
-
-#email_field {
-  margin-right: 10px; /* Reduced gap from 300px to 10px */
-}
-
-.enteremail {
+.enteremail, .secretkey {
   display: flex;
   flex-direction: row;
-}
-#email{
-  font-size: 18px;
-}
-#secret_key{
-  font-size: 18px;
-}
-#cancel_btns{
-  background-color: blueviolet;
-  color:white;
-  border:none;
-  font-size: 16px;
-  margin-left: 150px;
-  margin-top: 20px;
+  align-items: center;
+  margin-bottom: 15px;
+  width: 100%;
 }
 
-@media (max-width: 768px) {
+#email, #secret_key {
+  font-size: 16px;
+  width: 120px;
+  font-weight: 600;
+}
+
+#email_field, #cancelsecret_field {
+  flex: 1;
+  display: flex;
+}
+
+#email_field input, #cancelsecret_field input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.cancelbtn {
+  margin-top: 30px;
+  display: flex;
+  justify-content: center;
+}
+
+#cancel_btns {
+  width: 200px;
+  height: 40px;
+  border-radius: 20px;
+  font-size: 16px;
+  background-color: #6200ea;
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+#cancel_btns:hover {
+  background-color: #3700b3;
+}
+
+@media (max-width: 1024px) {
   .cancel_main {
     flex-direction: column;
+    height: auto;
   }
   
   .cancel_settings,
   .cancel_map {
     width: 100%;
+    min-width: 100%;
   }
   
   .cancel_map {
-    margin-top: 20px;
+    height: 500px;
   }
   
   .map_container {
+    height: 100%;
+  }
+}
+
+@media (max-width: 600px) {
+  .enteremail, .secretkey {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  #email, #secret_key {
+    margin-bottom: 5px;
     width: 100%;
+  }
+  
+  #email_field, #cancelsecret_field {
+    width: 100%;
+  }
+  
+  .cancel_map {
     height: 400px;
   }
 }

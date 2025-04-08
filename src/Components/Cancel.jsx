@@ -1,10 +1,10 @@
-import React, { useState } from "react";
-import { GoogleMap } from "@react-google-maps/api";
+import React, { useState, useRef } from "react";
+import { GoogleMap, Marker } from "@react-google-maps/api";
 import { useMaps } from "./MapsContext";
 import './Cancel.css';
 
 const center = {
-  lat: 53.3498053,
+  lat: 53.3498053, // Dublin, Ireland as center
   lng: -6.2603097
 };
 
@@ -12,6 +12,7 @@ export default function Cancel() {
   const { isLoaded } = useMaps();
   const [email, setEmail] = useState("");
   const [secretKey, setSecretKey] = useState("");
+  const mapRef = useRef(null);
 
   const handleCancel = () => {
     if (!email.trim() || !secretKey.trim()) {
@@ -27,42 +28,55 @@ export default function Cancel() {
     <>
       <div className="cancel_main">
         <div className="cancel_settings">
-          <div className="cancel_heading">Cancel</div>
+          <div className="cancel_heading">Cancel Journey</div>
           <div className="cancel_form">
             <div className="enteremail">
               <span id="email">Email</span>
               <span id="email_field">
                 <input 
-                  type="text" 
-                  placeholder="Enter the email id used while booking"
+                  type="email" 
+                  placeholder="Enter the email used for booking"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                 />
               </span>
             </div>
+            
             <div className="secretkey">
-              <span id="secret_key">Secret key</span>
+              <span id="secret_key">Secret Key</span>
               <span id="cancelsecret_field">
                 <input 
                   type="text" 
-                  placeholder="Enter secret key used while booking"
+                  placeholder="Enter the OTP received during booking"
                   value={secretKey}
                   onChange={(e) => setSecretKey(e.target.value)}
                 />
               </span>
             </div>
+            
             <div className="cancelbtn">
-              <button id="cancel_btns" onClick={handleCancel}>Cancel</button>
+              <button id="cancel_btns" onClick={handleCancel}>
+                Cancel Booking
+              </button>
             </div>
           </div>
         </div>
+        
         <div className="cancel_map">
           {isLoaded ? (
             <GoogleMap
               mapContainerClassName="map_container"
               center={center}
-              zoom={12}
-            />
+              zoom={6}
+              onLoad={(map) => (mapRef.current = map)}
+              options={{
+                streetViewControl: false,
+                mapTypeControl: false,
+                zoomControl: true,
+              }}
+            >
+              {/* 可以在这里添加标记，如果需要显示已取消的行程路线 */}
+            </GoogleMap>
           ) : (
             <p>Loading map...</p>
           )}
