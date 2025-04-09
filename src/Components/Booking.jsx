@@ -3,11 +3,10 @@ import {
   GoogleMap,
   useJsApiLoader,
   Autocomplete,
-  DirectionsRenderer,
   Marker,
-  Polyline
 } from "@react-google-maps/api";
 import "./Booking.css";
+import RouteSegments from "./RouteSegments"; // Import RouteSegments component
 
 const center = {
   lat: 53.3498053, // Dublin, Ireland as center
@@ -468,58 +467,18 @@ export default function Booking() {
                 zoomControl: true,
               }}
             >
-              {/* Only using the DirectionsRenderer for standard driving routes */}
-              {directions && (
-                <DirectionsRenderer 
-                  directions={directions}
-                  options={{
-                    suppressMarkers: false, // Use default markers
-                    polylineOptions: {
-                      strokeColor: "#4285F4", // Google Maps blue
-                      strokeWeight: 5
-                    }
-                  }}
-                />
-              )}
+              {/* Use RouteSegments component instead of the original DirectionsRenderer */}
+              <RouteSegments
+                directions={directions}
+                routeNotPossible={routeNotPossible}
+                startCoords={startCoords}
+                endCoords={endCoords}
+                showLegend={true}
+              />
               
-              {/* For long distance/impossible routes, show a custom straight line */}
-              {routeNotPossible && startCoords && endCoords && (
-                <>
-                  {/* Line connecting the points */}
-                  <Polyline
-                    path={[startCoords, endCoords]}
-                    options={{
-                      strokeColor: "#4285F4", // Match Google Maps blue
-                      strokeWeight: 3,
-                      strokeOpacity: 0.7,
-                      geodesic: true, // Makes the line follow the curve of the Earth
-                      icons: [{
-                        icon: {
-                          path: "M 0,-1 0,1",
-                          strokeOpacity: 1,
-                          scale: 3
-                        },
-                        offset: "0",
-                        repeat: "20px"
-                      }]
-                    }}
-                  />
-                  
-                  {/* Start marker */}
-                  <Marker
-                    position={startCoords}
-                    label="A"
-                  />
-                  
-                  {/* End marker */}
-                  <Marker
-                    position={endCoords}
-                    label="B"
-                  />
-                </>
-              )}
+              {/* Remove the original DirectionsRenderer part */}
               
-              {/* Show markers for incomplete selections (no directions yet) */}
+              {/* Display markers when there's no route */}
               {!directions && !routeNotPossible && (
                 <>
                   {startCoords && (

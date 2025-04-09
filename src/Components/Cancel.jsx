@@ -47,7 +47,7 @@ export default function Cancel() {
               <span id="cancelsecret_field">
                 <input 
                   type="text" 
-                  placeholder="Enter the OTP received during booking"
+                  placeholder="Enter secret key used while booking"
                   value={secretKey}
                   onChange={(e) => setSecretKey(e.target.value)}
                 />
@@ -75,7 +75,7 @@ export default function Cancel() {
                 zoomControl: true,
               }}
             >
-              {/* 可以在这里添加标记，如果需要显示已取消的行程路线 */}
+              {/* Markers can be added here to show the canceled journey route if needed */}
             </GoogleMap>
           ) : (
             <p>Loading map...</p>

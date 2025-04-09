@@ -16,6 +16,7 @@ function App() {
           <Route path="/" element={<Home/>}/>
           <Route path="/booking" element={<Booking/>}/>
           <Route path="/cancel" element={<Cancel/>}/>
+          <Route path="/route-details" element={<Booking/>}/>
           <Route path="*" element={<Navigate to="/" />}/>
         </Routes>
       </MapsProvider>
