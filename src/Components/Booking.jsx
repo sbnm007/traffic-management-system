@@ -7,6 +7,7 @@ import {
 } from "@react-google-maps/api";
 import "./Booking.css";
 import RouteSegments from "./RouteSegments"; // Import RouteSegments component
+import DataConfig from "./utils/Dataconfig";
 
 const center = {
   lat: 53.3498053, // Dublin, Ireland as center
@@ -36,7 +37,7 @@ export default function Booking() {
   const mapRef = useRef(null);
 
   const { isLoaded } = useJsApiLoader({
-    googleMapsApiKey: "AIzaSyBo-mXQolZZnHe2jxg1FDm8m-ViYP9_AaY",
+    googleMapsApiKey: DataConfig.GOOGLE_API_KEY,
     libraries: ["places"],
   });
 
@@ -259,6 +260,8 @@ export default function Booking() {
 
   // Clear all
   const clearAllLocations = () => {
+    setName("");
+    setEmail("");
     setStartLocation("");
     setStartCoords(null);
     setEndLocation("");
