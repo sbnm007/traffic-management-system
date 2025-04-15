@@ -302,7 +302,7 @@ export default function Booking() {
       // POST the data to /send_request via axios
       // -----------------------------------------
       const response = await axios.post(
-        "http://127.0.0.1:8000/send_request",
+        "http://192.168.118.5:8000/send_request",
         bookingData
       );
       // The API returns (example):
@@ -312,8 +312,7 @@ export default function Booking() {
       // }
       console.log("Response from /send_request:", response.data);
 
-      // Show booking ID in an alert
-      alert(`Booking ID from server: ${response.data.booking_id}`);
+      
 
       // Update our state to indicate success
       setBookingResult({
