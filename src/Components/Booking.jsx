@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef } from "react";
 import {
   GoogleMap,
   useJsApiLoader,
@@ -6,7 +6,6 @@ import {
   Marker,
 } from "@react-google-maps/api";
 import "./Booking.css";
-import RouteSegments from "./RouteSegments"; // Import RouteSegments component
 import DataConfig from "./utils/Dataconfig";
 
 const center = {
@@ -29,10 +28,8 @@ export default function Booking() {
   // State for map interaction
   const [startCoords, setStartCoords] = useState(null);
   const [endCoords, setEndCoords] = useState(null);
-  const [directions, setDirections] = useState(null);
   const [selectionMode, setSelectionMode] = useState("start"); // "start" or "end"
   const [currentZoom, setCurrentZoom] = useState(6); // Track the current zoom level
-  const [routeNotPossible, setRouteNotPossible] = useState(false); // Track if direct driving route is not possible
 
   // Dialog state
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -76,10 +73,6 @@ export default function Booking() {
 
     if (!value.trim()) {
       setStartCoords(null);
-      if (directions) {
-        setDirections(null);
-      }
-      setRouteNotPossible(false);
     }
   };
 
@@ -89,10 +82,6 @@ export default function Booking() {
 
     if (!value.trim()) {
       setEndCoords(null);
-      if (directions) {
-        setDirections(null);
-      }
-      setRouteNotPossible(false);
     }
   };
 
@@ -132,8 +121,6 @@ export default function Booking() {
             if (startCoords && endCoords) {
               setEndCoords(null);
               setEndLocation("");
-              setDirections(null);
-              setRouteNotPossible(false);
 
               setStartCoords(coords);
               setStartLocation(locationName);
@@ -235,8 +222,6 @@ export default function Booking() {
         if (startCoords && endCoords) {
           setEndCoords(null);
           setEndLocation("");
-          setDirections(null);
-          setRouteNotPossible(false);
 
           setStartCoords(selectedCoords);
           setStartLocation(locationName);
@@ -272,46 +257,8 @@ export default function Booking() {
     setStartCoords(null);
     setEndLocation("");
     setEndCoords(null);
-    setDirections(null);
-    setRouteNotPossible(false);
     setSelectionMode("start");
   };
-
-  // Watch for start/end coords to auto-generate route
-  useEffect(() => {
-    if (startCoords && endCoords) {
-      const directionsService = new window.google.maps.DirectionsService();
-      directionsService.route(
-        {
-          origin: startCoords,
-          destination: endCoords,
-          travelMode: window.google.maps.TravelMode.DRIVING,
-        },
-        (result, status) => {
-          if (status === "OK" && result) {
-            setDirections(result);
-            setRouteNotPossible(false);
-
-            const route = result.routes[0];
-            console.log(
-              "Route segments:",
-              route.legs[0].steps.map((step) => ({
-                instructions: step.instructions,
-                distance: step.distance.text,
-                duration: step.duration.text,
-              }))
-            );
-          } else {
-            setDirections(null);
-            setRouteNotPossible(true);
-            console.log("Could not calculate driving directions. Status:", status);
-          }
-        }
-      );
-    } else {
-      setRouteNotPossible(false);
-    }
-  }, [startCoords, endCoords]);
 
   // Close the dialog
   const handleCloseDialog = () => {
@@ -530,22 +477,9 @@ export default function Booking() {
                 zoomControl: true,
               }}
             >
-              {/* Use RouteSegments component instead of the original DirectionsRenderer */}
-              <RouteSegments
-                directions={directions}
-                routeNotPossible={routeNotPossible}
-                startCoords={startCoords}
-                endCoords={endCoords}
-                showLegend={true}
-              />
-
-              {/* Display markers only if no driving Directions are displayed */}
-              {!directions && !routeNotPossible && (
-                <>
-                  {startCoords && <Marker position={startCoords} label="A" />}
-                  {endCoords && <Marker position={endCoords} label="B" />}
-                </>
-              )}
+              {/* Display markers for start and end points */}
+              {startCoords && <Marker position={startCoords} label="A" />}
+              {endCoords && <Marker position={endCoords} label="B" />}
             </GoogleMap>
           ) : (
             <p>Loading map...</p>
@@ -576,7 +510,6 @@ export default function Booking() {
                       <div className="booking-details">
                         <p><strong>Booking ID:</strong> {bookingResult.bookingId}</p>
                         <p>Your journey has been successfully booked. Please keep your booking ID.</p>
-                        
                       </div>
                     </>
                   ) : (
