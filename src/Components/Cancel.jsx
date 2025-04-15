@@ -1,27 +1,61 @@
 import React, { useState, useRef } from "react";
-import { GoogleMap, Marker } from "@react-google-maps/api";
+import { GoogleMap } from "@react-google-maps/api";
 import { useMaps } from "./MapsContext";
-import './Cancel.css';
+import Modal from "react-modal";
+import "./Cancel.css";
 
 const center = {
-  lat: 53.3498053, // Dublin, Ireland as center
-  lng: -6.2603097
+  lat: 53.3498053,
+  lng: -6.2603097,
 };
+
+// Required for accessibility by react-modal
+Modal.setAppElement("#root");
 
 export default function Cancel() {
   const { isLoaded } = useMaps();
-  const [email, setEmail] = useState("");
-  const [secretKey, setSecretKey] = useState("");
+  const [bookingId, setBookingId] = useState("");
+  const [modalOpen, setModalOpen] = useState(false);
+  const [cancelData, setCancelData] = useState(null);
   const mapRef = useRef(null);
 
-  const handleCancel = () => {
-    if (!email.trim() || !secretKey.trim()) {
-      alert("Please enter both email and secret key to cancel your booking.");
+  const handleCancel = async () => {
+    if (!bookingId.trim()) {
+      alert("Please enter the Booking ID to cancel your booking.");
       return;
     }
-    
-    // In a real implementation, you would send this to your backend
-    alert(`Booking cancellation request submitted for ${email}.\nYou will receive a confirmation email shortly.`);
+
+    try {
+      const response = await fetch(
+        `http://127.0.0.1:8000/cancel_booking/${bookingId.trim()}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(
+          `Cancel booking request failed.\nStatus: ${response.status}\nResponse: ${errorText}`
+        );
+      }
+
+      const data = await response.json();
+      setCancelData(data);
+      setModalOpen(true);
+    } catch (error) {
+      console.error("Cancel booking error:", error);
+      alert(`Unable to cancel booking. Reason:\n${error.message}`);
+    }
+  };
+
+  const closeModal = () => {
+    setModalOpen(false);
+    setBookingId("");
+    setCancelData(null);
   };
 
   return (
@@ -30,30 +64,18 @@ export default function Cancel() {
         <div className="cancel_settings">
           <div className="cancel_heading">Cancel Journey</div>
           <div className="cancel_form">
-            <div className="enteremail">
-              <span id="email">Email</span>
-              <span id="email_field">
-                <input 
-                  type="email" 
-                  placeholder="Enter the email used for booking"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                />
-              </span>
-            </div>
-            
             <div className="secretkey">
               <span id="secret_key">Booking ID</span>
               <span id="cancelsecret_field">
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   placeholder="Enter Booking ID used while booking"
-                  value={secretKey}
-                  onChange={(e) => setSecretKey(e.target.value)}
+                  value={bookingId}
+                  onChange={(e) => setBookingId(e.target.value)}
                 />
               </span>
             </div>
-            
+
             <div className="cancelbtn">
               <button id="cancel_btns" onClick={handleCancel}>
                 Cancel Booking
@@ -61,7 +83,7 @@ export default function Cancel() {
             </div>
           </div>
         </div>
-        
+
         <div className="cancel_map">
           {isLoaded ? (
             <GoogleMap
@@ -74,14 +96,33 @@ export default function Cancel() {
                 mapTypeControl: false,
                 zoomControl: true,
               }}
-            >
-              {/* Markers can be added here to show the canceled journey route if needed */}
-            </GoogleMap>
+            />
           ) : (
             <p>Loading map...</p>
           )}
         </div>
       </div>
+
+      <Modal
+        isOpen={modalOpen}
+        onRequestClose={closeModal}
+        contentLabel="Booking Cancelled"
+        className="popup_modal"
+        overlayClassName="popup_overlay"
+      >
+        <h2>Booking Cancelled</h2>
+        <div className="success_tag">Successfully Cancelled</div>
+        <div className="booking_info">
+          <strong>Booking ID:</strong> {cancelData?.booking_id}
+          <p>
+            Your journey has been successfully cancelled.{" "}
+            {cancelData?.total_segments_freed} segments freed.
+          </p>
+        </div>
+        <button className="close_btn" onClick={closeModal}>
+          Close
+        </button>
+      </Modal>
     </>
   );
 }
