@@ -34,6 +34,11 @@ export default function Booking() {
   const [currentZoom, setCurrentZoom] = useState(6); // Track the current zoom level
   const [routeNotPossible, setRouteNotPossible] = useState(false); // Track if direct driving route is not possible
 
+  // Dialog state
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [bookingResult, setBookingResult] = useState(null);
+
   const mapRef = useRef(null);
 
   const { isLoaded } = useJsApiLoader({
@@ -262,6 +267,7 @@ export default function Booking() {
   const clearAllLocations = () => {
     setName("");
     setEmail("");
+    setLicense("");
     setStartLocation("");
     setStartCoords(null);
     setEndLocation("");
@@ -307,8 +313,16 @@ export default function Booking() {
     }
   }, [startCoords, endCoords]);
 
+  // Close the dialog
+  const handleCloseDialog = () => {
+    setIsDialogOpen(false);
+    // Reset dialog state if needed
+    setBookingResult(null);
+  };
+
   // Send data to backend & retrieve segments
   const handleBooking = async () => {
+    // Form validation
     if (
       !name.trim() ||
       !email.trim() ||
@@ -325,15 +339,33 @@ export default function Booking() {
       return;
     }
 
+    setIsDialogOpen(true);
+    setIsLoading(true);
+    setBookingResult(null);
+
     const bookingData = {
       name: name.trim(),
       email: email.trim(),
+      driving_license: license.trim(),
       start_coordinates: `${startCoords.lat},${startCoords.lng}`,
+      start_location: startLocation,
       destination_coordinates: `${endCoords.lat},${endCoords.lng}`,
+      destination_location: endLocation,
       start_time: new Date().toISOString(),
     };
 
     try {
+      // Simulate API call with a delay (remove this when connecting to a real backend)
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // Mock successful response (replace with actual API call later)
+      const mockBookingId = Math.floor(Math.random() * 900000 + 100000);
+      setBookingResult({
+        success: true,
+        bookingId: mockBookingId
+      });
+      
+      /* Uncomment when ready to connect to real backend
       // 1) Send booking data to backend
       const sendResponse = await fetch("http://127.0.0.1:8000/send_request", {
         method: "POST",
@@ -362,14 +394,18 @@ export default function Booking() {
 
       const segmentData = await getSegmentsResponse.json();
       console.log("Segment data from /get_segments:", segmentData);
-
-      // Show the bookingId in the success alert
-      alert(
-        `Booking successful!\nBooking ID: ${bookingId}\nSegment data retrieved. Please copy the booking ID.`
-      );
+      
+      */
+      
     } catch (error) {
       console.error("Booking error:", error);
-      alert("Booking failed. Please try again.");
+      
+      setBookingResult({
+        success: false,
+        message: error.message || "Booking failed. Please try again."
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -516,6 +552,51 @@ export default function Booking() {
           )}
         </div>
       </div>
+      {isDialogOpen && (
+        <div className="booking-dialog-overlay">
+          <div className="booking-dialog">
+            <div className="dialog-header">
+              <h2>{isLoading ? 'Processing' : bookingResult?.success ? 'Booking Successful' : 'Booking Failed'}</h2>
+              {!isLoading && (
+                <button className="close-btn" onClick={handleCloseDialog}>×</button>
+              )}
+            </div>
+            
+            <div className="dialog-content">
+              {isLoading ? (
+                <div className="loading-container">
+                  <div className="loading-spinner"></div>
+                  <p>Processing your booking request...</p>
+                </div>
+              ) : (
+                <>
+                  {bookingResult?.success ? (
+                    <>
+                      <div className="status-badge success">Successfully Booked</div>
+                      <div className="booking-details">
+                        <p><strong>Booking ID:</strong> {bookingResult.bookingId}</p>
+                        <p>Your journey has been successfully booked. Please keep your booking ID.</p>
+                        
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div className="status-badge failed">Booking Failed</div>
+                      <p>{bookingResult?.message || "An error occurred during the booking process. Please try again."}</p>
+                    </>
+                  )}
+                </>
+              )}
+            </div>
+            
+            {!isLoading && (
+              <div className="dialog-footer">
+                <button className="primary-btn" onClick={handleCloseDialog}>Close</button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </>
   );
 }
