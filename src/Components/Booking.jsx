@@ -1,4 +1,5 @@
 import React, { useState, useRef } from "react";
+import axios from "axios";
 import {
   GoogleMap,
   useJsApiLoader,
@@ -88,10 +89,8 @@ export default function Booking() {
   // Handle clicks on POIs (Points of Interest) such as city names
   const handlePoiClick = (e) => {
     if (e && e.placeId) {
-      // Prevent the default info window from appearing
-      e.stop();
+      e.stop(); // Prevent the default info window
 
-      // Get details about the clicked place
       const service = new window.google.maps.places.PlacesService(mapRef.current);
       service.getDetails(
         {
@@ -140,6 +139,11 @@ export default function Booking() {
         }
       );
     }
+  };
+
+  // Helper to find a specific type of address component
+  const findAddressComponent = (components, type) => {
+    return components.find((component) => component.types.includes(type));
   };
 
   // Handle map clicks for selecting start/end points
@@ -243,11 +247,6 @@ export default function Booking() {
     }
   };
 
-  // Helper to find a specific type of address component
-  const findAddressComponent = (components, type) => {
-    return components.find((component) => component.types.includes(type));
-  };
-
   // Clear all
   const clearAllLocations = () => {
     setName("");
@@ -263,11 +262,10 @@ export default function Booking() {
   // Close the dialog
   const handleCloseDialog = () => {
     setIsDialogOpen(false);
-    // Reset dialog state if needed
     setBookingResult(null);
   };
 
-  // Send data to backend & retrieve segments
+  // Send data to backend & retrieve segments (POST via axios)
   const handleBooking = async () => {
     // Form validation
     if (
@@ -290,66 +288,46 @@ export default function Booking() {
     setIsLoading(true);
     setBookingResult(null);
 
+    // Prepare data in the required JSON format
     const bookingData = {
       name: name.trim(),
       email: email.trim(),
-      driving_license: license.trim(),
       start_coordinates: `${startCoords.lat},${startCoords.lng}`,
-      start_location: startLocation,
       destination_coordinates: `${endCoords.lat},${endCoords.lng}`,
-      destination_location: endLocation,
       start_time: new Date().toISOString(),
     };
 
     try {
-      // Simulate API call with a delay (remove this when connecting to a real backend)
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // Mock successful response (replace with actual API call later)
-      const mockBookingId = Math.floor(Math.random() * 900000 + 100000);
+      // -----------------------------------------
+      // POST the data to /send_request via axios
+      // -----------------------------------------
+      const response = await axios.post(
+        "http://127.0.0.1:8000/send_request",
+        bookingData
+      );
+      // The API returns (example):
+      // {
+      //   "booking_id": "6797acd8-1cb5-4e0e-832c-7e9e3ac6f179",
+      //   "results": { "segment_1": "{\"status\":\"success\",\"message\":\"...\"}" }
+      // }
+      console.log("Response from /send_request:", response.data);
+
+      // Show booking ID in an alert
+      alert(`Booking ID from server: ${response.data.booking_id}`);
+
+      // Update our state to indicate success
       setBookingResult({
         success: true,
-        bookingId: mockBookingId
+        bookingId: response.data.booking_id,
       });
-      
-      /* Uncomment when ready to connect to real backend
-      // 1) Send booking data to backend
-      const sendResponse = await fetch("http://127.0.0.1:8000/send_request", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(bookingData),
-      });
-
-      if (!sendResponse.ok) {
-        throw new Error("Failed to send booking request.");
-      }
-
-      const sendResult = await sendResponse.json();
-      console.log("Response from /send_request:", sendResult);
-      const bookingId = sendResult.booking_id;
-
-      // 2) Once booking is successful, fetch route segments
-      const getSegmentsResponse = await fetch(
-        `http://127.0.0.1:8000/get_segments/${bookingId}`
-      );
-
-      if (!getSegmentsResponse.ok) {
-        throw new Error("Failed to fetch segment data.");
-      }
-
-      const segmentData = await getSegmentsResponse.json();
-      console.log("Segment data from /get_segments:", segmentData);
-      
-      */
-      
     } catch (error) {
       console.error("Booking error:", error);
-      
       setBookingResult({
         success: false,
-        message: error.message || "Booking failed. Please try again."
+        message:
+          error?.response?.data?.message ||
+          error.message ||
+          "Booking failed. Please try again.",
       });
     } finally {
       setIsLoading(false);
@@ -430,7 +408,8 @@ export default function Booking() {
 
                 {/* Selection mode indicator */}
                 <div className="selection-mode">
-                  Currently selecting: <strong>{selectionMode === "start" ? "Start" : "End"}</strong> location
+                  Currently selecting:{" "}
+                  <strong>{selectionMode === "start" ? "Start" : "End"}</strong> location
                   {startCoords && endCoords && " (Click on map again to restart selection)"}
                 </div>
               </>
@@ -486,16 +465,25 @@ export default function Booking() {
           )}
         </div>
       </div>
+
       {isDialogOpen && (
         <div className="booking-dialog-overlay">
           <div className="booking-dialog">
             <div className="dialog-header">
-              <h2>{isLoading ? 'Processing' : bookingResult?.success ? 'Booking Successful' : 'Booking Failed'}</h2>
+              <h2>
+                {isLoading
+                  ? "Processing"
+                  : bookingResult?.success
+                  ? "Booking Successful"
+                  : "Booking Failed"}
+              </h2>
               {!isLoading && (
-                <button className="close-btn" onClick={handleCloseDialog}>×</button>
+                <button className="close-btn" onClick={handleCloseDialog}>
+                  ×
+                </button>
               )}
             </div>
-            
+
             <div className="dialog-content">
               {isLoading ? (
                 <div className="loading-container">
@@ -508,23 +496,30 @@ export default function Booking() {
                     <>
                       <div className="status-badge success">Successfully Booked</div>
                       <div className="booking-details">
-                        <p><strong>Booking ID:</strong> {bookingResult.bookingId}</p>
+                        <p>
+                          <strong>Booking ID:</strong> {bookingResult.bookingId}
+                        </p>
                         <p>Your journey has been successfully booked. Please keep your booking ID.</p>
                       </div>
                     </>
                   ) : (
                     <>
                       <div className="status-badge failed">Booking Failed</div>
-                      <p>{bookingResult?.message || "An error occurred during the booking process. Please try again."}</p>
+                      <p>
+                        {bookingResult?.message ||
+                          "An error occurred during the booking process. Please try again."}
+                      </p>
                     </>
                   )}
                 </>
               )}
             </div>
-            
+
             {!isLoading && (
               <div className="dialog-footer">
-                <button className="primary-btn" onClick={handleCloseDialog}>Close</button>
+                <button className="primary-btn" onClick={handleCloseDialog}>
+                  Close
+                </button>
               </div>
             )}
           </div>
