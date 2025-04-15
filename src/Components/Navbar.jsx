@@ -31,6 +31,12 @@ export default function Navbar() {
           >
             Cancel Journey
           </Link>
+          <Link 
+            to="/capacity" 
+            className={`navbar-link ${location.pathname === '/capacity' ? 'active' : ''}`}
+          >
+            Check Capacity
+          </Link>
         </div>
       </div>
     </nav>

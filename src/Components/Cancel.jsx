@@ -43,11 +43,11 @@ export default function Cancel() {
             </div>
             
             <div className="secretkey">
-              <span id="secret_key">Secret Key</span>
+              <span id="secret_key">Booking ID</span>
               <span id="cancelsecret_field">
                 <input 
                   type="text" 
-                  placeholder="Enter secret key used while booking"
+                  placeholder="Enter Booking ID used while booking"
                   value={secretKey}
                   onChange={(e) => setSecretKey(e.target.value)}
                 />
