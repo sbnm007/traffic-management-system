@@ -13,15 +13,21 @@ export default function Cancel() {
   const [bookingId, setBookingId] = useState("");
   const [showDialog, setShowDialog] = useState(false);
   const [cancelData, setCancelData] = useState(null);
+  const [errorData, setErrorData] = useState(null);
+  const [showErrorDialog, setShowErrorDialog] = useState(false);
   const mapRef = useRef(null);
 
   const handleCancel = async () => {
     if (!bookingId.trim()) {
-      alert("Please enter the Booking ID to cancel your booking.");
+      setErrorData({
+        message: "Please enter the Booking ID to cancel your booking."
+      });
+      setShowErrorDialog(true);
       return;
     }
 
     try {
+      // Make API call to the backend to cancel booking
       const response = await fetch(
         `http://192.168.118.5:8000/cancel_booking/${bookingId}`,
         {
@@ -33,10 +39,13 @@ export default function Cancel() {
       );
 
       if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(
-          `Cancel booking request failed.\nStatus: ${response.status}\nResponse: ${errorText}`
-        );
+        const errorResponse = await response.json();
+        setErrorData({
+          status: response.status,
+          detail: errorResponse.detail || "Unknown error occurred"
+        });
+        setShowErrorDialog(true);
+        return;
       }
 
       const data = await response.json();
@@ -44,12 +53,20 @@ export default function Cancel() {
       setShowDialog(true);
     } catch (error) {
       console.error("Cancel booking error:", error);
-      alert(`Unable to cancel booking. Reason:\n${error.message}`);
+      setErrorData({
+        message: "Network error. Please check your connection and try again."
+      });
+      setShowErrorDialog(true);
     }
   };
 
   const closeDialog = () => {
     setShowDialog(false);
+  };
+
+  const closeErrorDialog = () => {
+    setShowErrorDialog(false);
+    setErrorData(null);
   };
 
   return (
@@ -114,6 +131,28 @@ export default function Cancel() {
             </div>
             <div className="dialog-footer">
               <button className="confirm-btn" onClick={closeDialog}>Close</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Error Dialog */}
+      {showErrorDialog && errorData && (
+        <div className="dialog-overlay">
+          <div className="dialog-box">
+            <div className="dialog-header">
+              <h2>Unable to Cancel Booking</h2>
+              <button className="close-dialog-btn" onClick={closeErrorDialog}>×</button>
+            </div>
+            <div className="dialog-content">
+              <div className="status-badge error">Cancellation Failed</div>
+              <div className="booking-details">
+                {errorData.detail && <p><strong>Reason:</strong> {errorData.detail}</p>}
+                {errorData.message && <p>{errorData.message}</p>}
+              </div>
+            </div>
+            <div className="dialog-footer">
+              <button className="confirm-btn" onClick={closeErrorDialog}>Close</button>
             </div>
           </div>
         </div>
