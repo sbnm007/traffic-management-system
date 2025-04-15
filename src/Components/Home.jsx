@@ -38,13 +38,19 @@ export default function Home() {
             <Link to="/booking" className="action-button">Book Now</Link>
           </div>
           
-              <div className="feature">
-                <div className="feature-icon">❌</div>
-                <h3>Cancel a Journey</h3>
-                <Link to="/cancel" className="action-button cancel">Cancel Journey</Link>
-              </div>
+          <div className="feature">
+            <div className="feature-icon">❌</div>
+            <h3>Cancel a Journey</h3>
+            <Link to="/cancel" className="action-button cancel">Cancel Journey</Link>
+          </div>
+          
+          <div className="feature">
+            <div className="feature-icon">📊</div>
+            <h3>Check Capacity</h3>
+            <Link to="/capacity" className="action-button capacity">Check Status</Link>
           </div>
         </div>
+      </div>
     </div>
   );
 }
