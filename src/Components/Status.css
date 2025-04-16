@@ -176,6 +176,10 @@
   background-color: #F44336;
 }
 
+.status-badge.cancelled {
+  background-color: #FF9800;
+}
+
 .status-badge.not-found {
   background-color: #FF9800;
   color: #333;

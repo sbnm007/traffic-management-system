@@ -16,8 +16,7 @@ export default function Status() {
   
     try {
       const response = await fetch(`http://192.168.118.5:8000/booking_status/${bookingId}`);
-  
-      const data = await response.json(); // ✅ Only call once
+      const data = await response.json();
   
       if (response.status === 202) {
         console.log("Booking field (202):", data.booking);
@@ -28,7 +27,11 @@ export default function Status() {
       }
   
       console.log("Response data:", data);
-      setStatusInfo({ status: data.status });
+      setStatusInfo({ 
+        status: data.status,
+        // Include any additional booking details that might be needed
+        details: data.details || {}
+      });
     } catch (error) {
       console.error("Error fetching booking status:", error);
       setStatusInfo({
@@ -40,7 +43,6 @@ export default function Status() {
     setShowDialog(true);
   };
   
-
   const handleCloseDialog = () => {
     setShowDialog(false);
   };
@@ -104,6 +106,12 @@ export default function Status() {
                 <>
                   <div className="status-badge failed">Failed</div>
                   <p>Booking failed, please try again.</p>
+                </>
+              )}
+              {statusInfo.status === "cancelled" && (
+                <>
+                  <div className="status-badge cancelled">Cancelled</div>
+                  <p>Your booking has been successfully cancelled.</p>
                 </>
               )}
               {statusInfo.status === "not-found" && (
