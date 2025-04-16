@@ -19,7 +19,7 @@ export default function Capacity() {
 
   const computeSegmentStatus = (percentage) => {
     if (percentage >= 70) return "#FF0000"; // Red
-    if (percentage >= 50) return "#FFFF00"; // Yellow
+    if (percentage >= 10) return "#FFFF00"; // Yellow
     return "#00FF00"; // Green
   };
 
@@ -31,9 +31,13 @@ export default function Capacity() {
 
     try {
       const response = await fetch(`http://192.168.118.5:8000/get_segments/${bookingId}`);
-      if (!response.ok) throw new Error("Booking not found or server error");
-
+      if (response.status === 202) {
+        const data = await response.json();
+        console.log("Booking field:", data.booking); // Assuming `booking` is a top-level field
+      } else if (!response.ok) throw new Error("Booking not found or server error");
+      else{
       const data = await response.json();
+      
       let allSegments = [];
 
       if (data.segments && typeof data.segments === 'object') {
@@ -68,7 +72,7 @@ export default function Capacity() {
         });
         setMapZoom(12);
       }
-
+    }
     } catch (error) {
       console.error("Error fetching booking:", error);
       alert("Error fetching booking data.");

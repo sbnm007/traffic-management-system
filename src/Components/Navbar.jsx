@@ -37,7 +37,14 @@ export default function Navbar() {
           >
             Check Capacity
           </Link>
+          <Link 
+            to="/check_status" 
+            className={`navbar-link ${location.pathname === '/check_status' ? 'active' : ''}`}
+          >
+            Check Booking Status
+          </Link>
         </div>
+        
       </div>
     </nav>
   );
