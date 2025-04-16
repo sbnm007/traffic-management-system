@@ -265,6 +265,42 @@ export default function Booking() {
     setBookingResult(null);
   };
 
+  // Helper function to check if any segment has failed
+  const checkSegmentFailures = (results) => {
+    if (!results) return null;
+    
+    const failedSegments = [];
+    
+    // Iterate through each segment in the results
+    for (const segmentKey in results) {
+      try {
+        // Parse the JSON string in each result
+        const segmentResult = JSON.parse(results[segmentKey]);
+        
+        // Check for failure indicators
+        if (
+          segmentResult.detail || 
+          (segmentResult.status && segmentResult.status !== "success") ||
+          segmentResult.error
+        ) {
+          failedSegments.push({
+            segmentKey,
+            message: segmentResult.detail || segmentResult.message || segmentResult.error || "Unknown error"
+          });
+        }
+      } catch (error) {
+        console.error(`Error parsing segment result for ${segmentKey}:`, error);
+        // If we can't parse the result, consider it a failure
+        failedSegments.push({
+          segmentKey,
+          message: "Invalid segment data"
+        });
+      }
+    }
+    
+    return failedSegments.length > 0 ? failedSegments : null;
+  };
+
   // Send data to backend & retrieve segments (POST via axios)
   const handleBooking = async () => {
     // Form validation
@@ -292,33 +328,40 @@ export default function Booking() {
     const bookingData = {
       name: name.trim(),
       email: email.trim(),
+      license: license.trim(),
       start_coordinates: `${startCoords.lat},${startCoords.lng}`,
       destination_coordinates: `${endCoords.lat},${endCoords.lng}`,
       start_time: new Date().toISOString(),
     };
 
     try {
-      // -----------------------------------------
       // POST the data to /send_request via axios
-      // -----------------------------------------
       const response = await axios.post(
         "http://192.168.118.5:8000/send_request",
         bookingData
       );
-      // The API returns (example):
-      // {
-      //   "booking_id": "6797acd8-1cb5-4e0e-832c-7e9e3ac6f179",
-      //   "results": { "segment_1": "{\"status\":\"success\",\"message\":\"...\"}" }
-      // }
-      console.log("Response from /send_request:", response.data);
-
       
-
-      // Update our state to indicate success
-      setBookingResult({
-        success: true,
-        bookingId: response.data.booking_id,
-      });
+      console.log("Response from /send_request:", response.data);
+      
+      // Check for segment failures
+      const failedSegments = checkSegmentFailures(response.data.results);
+      
+      if (failedSegments) {
+        // At least one segment has failed
+        setBookingResult({
+          success: false,
+          bookingId: response.data.booking_id,
+          failedSegments: failedSegments,
+          message: "Unable to book your journey due to insufficient capacity on one or more road segments."
+        });
+      } else {
+        // All segments successful
+        setBookingResult({
+          success: true,
+          bookingId: response.data.booking_id,
+          segments: response.data.results
+        });
+      }
     } catch (error) {
       console.error("Booking error:", error);
       setBookingResult({
@@ -331,6 +374,52 @@ export default function Booking() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  // Helper function to render segment details
+  const renderSegmentDetails = () => {
+    if (!bookingResult || !bookingResult.segments) return null;
+    
+    return (
+      <div className="segment-info">
+        <h3>Journey Segments:</h3>
+        {Object.entries(bookingResult.segments).map(([key, value]) => {
+          try {
+            const segmentData = JSON.parse(value);
+            return (
+              <div key={key} className="segment-item">
+                <p><strong>{key.replace('_', ' ').toUpperCase()}</strong>: {segmentData.message}</p>
+              </div>
+            );
+          } catch (e) {
+            return (
+              <div key={key} className="segment-item">
+                <p><strong>{key.replace('_', ' ').toUpperCase()}</strong>: Failed to process segment</p>
+              </div>
+            );
+          }
+        })}
+      </div>
+    );
+  };
+
+  // Helper function to render failure details
+  const renderFailureDetails = () => {
+    if (!bookingResult || !bookingResult.failedSegments) return null;
+    
+    return (
+      <div className="failed-segments">
+        <h3>Failed Segments:</h3>
+        {bookingResult.failedSegments.map((segment, index) => (
+          <div key={index} className="failed-segment-item">
+            <p>
+              <strong>{segment.segmentKey.replace('_', ' ').toUpperCase()}</strong>: {segment.message}
+            </p>
+          </div>
+        ))}
+        <p className="segment-note">Please consider trying a different route or time.</p>
+      </div>
+    );
   };
 
   return (
@@ -499,6 +588,7 @@ export default function Booking() {
                           <strong>Booking ID:</strong> {bookingResult.bookingId}
                         </p>
                         <p>Your journey has been successfully booked. Please keep your booking ID.</p>
+                        {renderSegmentDetails()}
                       </div>
                     </>
                   ) : (
@@ -508,6 +598,7 @@ export default function Booking() {
                         {bookingResult?.message ||
                           "An error occurred during the booking process. Please try again."}
                       </p>
+                      {renderFailureDetails()}
                     </>
                   )}
                 </>
