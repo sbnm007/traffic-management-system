@@ -4,7 +4,7 @@ import { useMaps } from "./MapsContext";
 import "./Cancel.css";
 
 const center = {
-  lat: 53.3498053, 
+  lat: 53.3498053,
   lng: -6.2603097,
 };
 
@@ -20,14 +20,13 @@ export default function Cancel() {
   const handleCancel = async () => {
     if (!bookingId.trim()) {
       setErrorData({
-        message: "Please enter the Booking ID to cancel your booking."
+        message: "Please enter the Booking ID to cancel your booking.",
       });
       setShowErrorDialog(true);
       return;
     }
 
     try {
-      // Make API call to the backend to cancel booking
       const response = await fetch(
         `http://192.168.118.5:8000/cancel_booking/${bookingId}`,
         {
@@ -38,23 +37,26 @@ export default function Cancel() {
         }
       );
 
+      // Parse response JSON
+      const data = await response.json();
+
+      // If NOT a successful HTTP status, show error dialog
       if (!response.ok) {
-        const errorResponse = await response.json();
         setErrorData({
           status: response.status,
-          detail: errorResponse.detail || "Unknown error occurred"
+          detail: data.status || "Unknown error occurred",
         });
         setShowErrorDialog(true);
         return;
       }
 
-      const data = await response.json();
+      // If success, show success dialog with data from API
       setCancelData(data);
       setShowDialog(true);
     } catch (error) {
       console.error("Cancel booking error:", error);
       setErrorData({
-        message: "Network error. Please check your connection and try again."
+        message: "Network error. Please check your connection and try again.",
       });
       setShowErrorDialog(true);
     }
@@ -62,6 +64,7 @@ export default function Cancel() {
 
   const closeDialog = () => {
     setShowDialog(false);
+    setCancelData(null); // Clear data on close
   };
 
   const closeErrorDialog = () => {
@@ -120,17 +123,25 @@ export default function Cancel() {
           <div className="dialog-box">
             <div className="dialog-header">
               <h2>Booking Cancellation</h2>
-              <button className="close-dialog-btn" onClick={closeDialog}>×</button>
+              <button className="close-dialog-btn" onClick={closeDialog}>
+                ×
+              </button>
             </div>
             <div className="dialog-content">
-              <div className="status-badge success">Successfully Cancelled</div>
+              {/* status from API response */}
+              <div className="status-badge success">{cancelData.status}</div>
               <div className="booking-details">
-                <p><strong>Booking ID:</strong> {cancelData.booking_id}</p>
-                <p><strong>Status:</strong> {cancelData.status}</p>
+                {cancelData.booking_id && (
+                  <p>
+                    <strong>Booking ID:</strong> {cancelData.booking_id}
+                  </p>
+                )}
               </div>
             </div>
             <div className="dialog-footer">
-              <button className="confirm-btn" onClick={closeDialog}>Close</button>
+              <button className="confirm-btn" onClick={closeDialog}>
+                Close
+              </button>
             </div>
           </div>
         </div>
@@ -142,17 +153,27 @@ export default function Cancel() {
           <div className="dialog-box">
             <div className="dialog-header">
               <h2>Unable to Cancel Booking</h2>
-              <button className="close-dialog-btn" onClick={closeErrorDialog}>×</button>
+              <button className="close-dialog-btn" onClick={closeErrorDialog}>
+                ×
+              </button>
             </div>
             <div className="dialog-content">
               <div className="status-badge error">Cancellation Failed</div>
               <div className="booking-details">
-                {errorData.detail && <p><strong>Reason:</strong> {errorData.detail}</p>}
+                {/* If API returned status text in 'detail' */}
+                {errorData.detail && (
+                  <p>
+                    <strong>Reason:</strong> {errorData.detail}
+                  </p>
+                )}
+                {/* If we have a generic message */}
                 {errorData.message && <p>{errorData.message}</p>}
               </div>
             </div>
             <div className="dialog-footer">
-              <button className="confirm-btn" onClick={closeErrorDialog}>Close</button>
+              <button className="confirm-btn" onClick={closeErrorDialog}>
+                Close
+              </button>
             </div>
           </div>
         </div>
